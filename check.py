@@ -40,23 +40,31 @@ class BaiduTieBa:
 		self.tool=Tool()
 		#全局的文件变量
 		self.file=None
-	#根据传入的页码来获取帖子的内容太
+	#根据传入的页码来获取该页的帖子列表
 	def getPageContent(self,pageNum):
-		url=self.url  #self.seeLZ+"&pn="+str(pageNum)
+		url=self.url +"&pn="+str(pageNum*50)
 		user_agent="Mozilla/5.0 (Windows NT 6.1)"
 		headers={"User-Agent":user_agent}
 		try:
 			request=urllib2.Request(url,headers=headers)
 			response=urllib2.urlopen(request)
 			content=response.read().decode("utf-8")
-			print content  #测试输出
+			# print content  #测试输出
 			return content
 		except urllib2.URLError,e:
 			if hasattr(e,"reason"):
 				print e.reason
 	#得到帖子的标题
-	def getPageTitle(self,pageNum):
-		content=self.getPageContent(pageNum)
+	def getPosts(self,content):
+		pattern=re.compile(r'<h3 class="core_title_txt pull-left text-overflow .*?>(.*?)</h3>',re.S)
+		title=re.search(pattern,content)
+		if title:
+			print title.group(1).strip()
+			return title.group(1).strip()
+		else:
+			print None
+	#得到帖子的标题
+	def getPageTitle(self,content):
 		pattern=re.compile(r'<h3 class="core_title_txt pull-left text-overflow .*?>(.*?)</h3>',re.S)
 		title=re.search(pattern,content)
 		if title:
@@ -65,8 +73,7 @@ class BaiduTieBa:
 		else:
 			print None
 	#得到帖子的作者
-	def getPageAuthor(self,pageNum):
-		content=self.getPageContent(pageNum)
+	def getPageAuthor(self,content):
 		# <div class="louzhubiaoshi  j_louzhubiaoshi" author="懂球君">
 		pattern=re.compile(r'<div class="louzhubiaoshi  j_louzhubiaoshi" author="(.*?)">',re.S) 
 		author=re.search(pattern,content)
@@ -95,6 +102,7 @@ class BaiduTieBa:
 		#<div id="post_content_80098618952" class="d_post_content j_d_post_content "> 
 		#一个省女性几千万人 比刘亦菲漂亮的可以找出几个</div>
 		#提取正则表达式如下：
+		<span class="threadlist_rep_num center_text" title="回复">
 		pattern=re.compile(r'<div id="post_content_.*?>(.*?)</div>',re.S)
 		items=re.findall(pattern,content)
 		floor=1
@@ -128,7 +136,7 @@ class BaiduTieBa:
 	def start(self):
 		#先获取html代码
 		content=self.getPageContent(0)
-		return
+
 		#第二步：开始解析，获取帖子的标题和作者
 		title=self.getPageTitle(pageNum)
 		#根据title建立一个即将用于写入的文件
@@ -147,10 +155,9 @@ class BaiduTieBa:
 #测试代码如下：
 #url=raw_input("raw_input:")
 target=quote(sys.argv[1])
-url="https://tieba.baidu.com/f?kw="+target+"&ie=utf-8&pn=0"
-print url
+url="https://tieba.baidu.com/f?kw="+target+"&ie=utf-8"
 baidutieba=BaiduTieBa(url)#实例化一个对象
-# baidutieba.start()
+baidutieba.start()
 
 
 #content=baidutieba.getPageContent(pageNum)#调用函数
