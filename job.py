@@ -168,7 +168,9 @@ def prepareAllTieBa():
 				fileNames.write(itemName.encode('utf-8')+'\n')
 			if len(curPageTiebaNames)<19 or index>=10:
 				isContinue = False
-
+# step1 执行prepare 获取所有贴吧列表 
 # prepareAllTieBa()
+
+# step2 遍历上面准备的贴吧数据
 baidutieba=BaiduTieBa() #实例化一个对象
 baidutieba.start()
